@@ -2,7 +2,7 @@
 FROM ubuntu:22.04
 
 # Install Package
-RUN apt-get update -y && apt-get install systemd nginx -y
+RUN apt-get update -y && apt-get install vim net-tools systemd nginx -y
 
 # Create Directory
 RUN mkdir /etc/prometheus
