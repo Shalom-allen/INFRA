@@ -6,7 +6,7 @@
 #                                       Date 2026-01-14
 #                                       Create by Yoo Min Sang
 #                                       OS Version : Ubuntu 22.04
-#                                       DBMS : Postgresql 14
+#                                       DBMS : Postgresql 18
 # --------------------------------------------------------------
 
 # 시간함수
@@ -20,7 +20,7 @@ echo "Start package installation" >> sc_postgresql.log
 echo "$(whoami) / $(now)" >> sc_postgresql.log
 
 echo "Package Setting"
-apt-get install -y vim net-tools openssh-server postgresql postgresql-contrib &
+apt-get install -y vim net-tools openssh-server postgresql-18 postgresql-contrib &
 apt-get update -y &
 
 echo "Complete package installation" >> sc_postgresql.log
