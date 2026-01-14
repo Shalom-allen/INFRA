@@ -6,7 +6,7 @@
 #                                       Date 2026-01-14
 #                                       Create by Yoo Min Sang
 #                                       OS Version : Ubuntu 22.04
-#                                       DBMS : Postgresql 18
+#                                       DBMS : Postgresql 14
 # --------------------------------------------------------------
 
 # 시간함수
@@ -14,53 +14,87 @@ now() {
     date '+%Y-%m-%d %H:%M:%S'
 }
 
-# 패키지 업데이트 및 설치
-echo "--------------------------------------------------------------------------------------"
+# 스크립트 시작로그
 echo "Start package installation" >> sc_postgresql.log
 echo "$(whoami) / $(now)" >> sc_postgresql.log
+clear
 
-echo "Package Setting"
-apt-get install -y vim net-tools openssh-server postgresql-18 postgresql-contrib &
-apt-get update -y &
-
-echo "Complete package installation" >> sc_postgresql.log
-echo "$(whoami) / $(now)" >> sc_postgresql.log
-echo "--------------------------------------------------------------------------------------"
-
-# Postgresql 상태 확인
-echo "Checked PostgreSQL Status" >> sc_postgresql.log
-echo "$(whoami) / $(now)" >> sc_postgresql.log
-echo "Checked PostgreSQL Status"
-
-STATE=$(systemctl show postgresql -p ActiveState --value)
-TS=$(systemctl show postgresql -p ActiveEnterTimestamp --value)
-echo "Postgresql status : ${STATE} ( ${TS} )"
-echo "Postgresql status : ${STATE} ( ${TS} )" >> sc_postgresql.log
-psql --version
-echo "--------------------------------------------------------------------------------------"
-
-# Postgresql Configure 파일 확인 및 설정
-CN_FILE = "/etc/postgresql/14/main/postgresql.conf"
-
-if [ -e $CN_FILE ]; then
-    # Postgresql 종료 & 상태확인
-    echo "postgresql shutdown start" >> sc_postgresql.log
-    echo "$(whoami) / $(now)" >> sc_postgresql.log
-    echo "Checked PostgreSQL Status"
-    systemctl stop postgresql &
-    echo "Checked PostgreSQL Status"
-    echo "Postgresql status : ${STATE} ( ${TS} )"
-    echo "Postgresql status : ${STATE} ( ${TS} )" >> sc_postgresql.log
-
+# 작업 선택
+while true; do
     clear
     echo "--------------------------------------------------------------------------------------"
-    read -p "Want to change postgresql default settings?" check
+    echo "Welcome to the PostgreSQL installer."
+    echo "Please select the task you want to perform."
+    echo " "
+    echo "1) Package Update"
+    echo "2) Package installation (including DBMS installation)"
+    echo "3) Check Postgresql status"
+    echo "4) Change the PostgreSQL configuration file (this will shut down the running DBMS)."
+    echo "5) Set up PostgreSQL replication (requires at least two DB servers => not currently supported)."
+    echo "6) End of work"
     echo "--------------------------------------------------------------------------------------"
+    read -p "Select [1-2]: " CHOISE
 
-    # Postgresql 포트 변경
-    read
+    echo "$(now) / Task Selection $CHOISE" >> sc_postgresql.log
+    clear
 
-else
-
-fi
-
+    case "$CHOISE" in
+      1)
+        # 패키지 업데이트
+        echo "You selected number $CHOISE."
+        apt-get update -y &
+        echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
+        break
+        ;;
+      2)
+        # 필요 패키지 설치 및 Postgresql 설치
+        echo "You selected number $CHOISE."
+        apt-get install -y vim net-tools openssh-server postgresql-18 postgresql-contrib &
+        echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
+        break
+        ;;
+      3)
+        # Postgresql 상태확인
+        echo "You selected number $CHOISE."
+        STATE=$(systemctl show postgresql -p ActiveState --value)
+        TS=$(systemctl show postgresql -p ActiveEnterTimestamp --value)
+        echo "Postgresql status : ${STATE} ( ${TS} )"
+        echo "Postgresql status : ${STATE} ( ${TS} )" >> sc_postgresql.log
+        echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
+        break
+        ;;
+      4)
+        # Postgresql 설정파일 변경
+        echo "You selected number $CHOISE."
+        while true; do
+        clear
+        echo "--------------------------------------------------------------------------------------"
+        echo "Which part of the Postgresql configuration file would you like to change?"
+        echo " "
+        echo "1) Change port"
+        echo "2) Change max_connections"
+        echo "3) Change shared_buffers"
+        echo "4) End of work"
+        echo "--------------------------------------------------------------------------------------"
+        read -p "Select [1-2]: " P_CHOISE
+        break
+        ;;
+      5)
+        echo "You selected number $CHOISE."
+        echo "Not Currently Supported"
+        break
+        ;;
+      6)
+        echo "You selected number $CHOISE."
+        echo "Bye, $(whoami)"
+        echo "$(now) / Termination by choice" >> sc_postgresql.log
+        exit
+        ;;
+      *)
+        echo "NO selected. End of work"
+        echo "Bye, $(whoami)"
+        echo "$(now) / Termination due to selected number error" >> sc_postgresql.log
+        exit
+        ;;
+    esac
+done
