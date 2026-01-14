@@ -3,7 +3,7 @@
 #                   Install Postgresql
 #                                       Ver. 1.0
 #
-#                                       Date 2026-01-08
+#                                       Date 2026-01-14
 #                                       Create by Yoo Min Sang
 #                                       OS Version : Ubuntu 22.04
 #                                       DBMS : Postgresql 14.20 -> 변경될 수 있음
