@@ -25,7 +25,7 @@ while true; do
     echo "--------------------------------------------------------------------------------------"
     echo "Welcome to the PostgreSQL installer."
     echo "Please select the task you want to perform."
-    echo " "
+    echo 
     echo "1) Package Update"
     echo "2) Package installation (including DBMS installation)"
     echo "3) Check Postgresql status"
@@ -33,9 +33,7 @@ while true; do
     echo "5) Set up PostgreSQL replication (requires at least two DB servers => not currently supported)."
     echo "6) End of work"
     echo "--------------------------------------------------------------------------------------"
-    read -p "Select [1-2]: " CHOISE
-
-    echo "$(now) / Task Selection $CHOISE" >> sc_postgresql.log
+    read -p "Select [1-6]: " CHOISE
     clear
 
     case "$CHOISE" in
@@ -44,14 +42,14 @@ while true; do
         echo "You selected number $CHOISE."
         apt-get update -y &
         echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
-        break
+        continue
         ;;
       2)
         # 필요 패키지 설치 및 Postgresql 설치
         echo "You selected number $CHOISE."
         apt-get install -y vim net-tools openssh-server postgresql-18 postgresql-contrib &
         echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
-        break
+        continue
         ;;
       3)
         # Postgresql 상태확인
@@ -61,28 +59,78 @@ while true; do
         echo "Postgresql status : ${STATE} ( ${TS} )"
         echo "Postgresql status : ${STATE} ( ${TS} )" >> sc_postgresql.log
         echo "$(now) / Task $CHOISE completed" >> sc_postgresql.log
-        break
+        continue
         ;;
       4)
         # Postgresql 설정파일 변경
         echo "You selected number $CHOISE."
+        echo "Please tell me the location of the postgresql configuration file."
+        echo
+        read -p "File Location" LOC_CONF
+
+        if [[ ! -f "$LOC_CONF" ]]; then
+          echo "ERROR: File not found."
+          echo $LOC_CONF
+          exit 1
+        fi
+
         while true; do
-        clear
-        echo "--------------------------------------------------------------------------------------"
-        echo "Which part of the Postgresql configuration file would you like to change?"
-        echo " "
-        echo "1) Change port"
-        echo "2) Change max_connections"
-        echo "3) Change shared_buffers"
-        echo "4) End of work"
-        echo "--------------------------------------------------------------------------------------"
-        read -p "Select [1-2]: " P_CHOISE
-        break
+          clear
+          echo "--------------------------------------------------------------------------------------"
+          echo "Which part of the Postgresql configuration file would you like to change?"
+          echo 
+          echo "1) Change port"
+          echo "2) Change max_connections"
+          echo "3) Change shared_buffers"
+          echo "4) End of work"
+          echo "--------------------------------------------------------------------------------------"
+          read -p "Select [1-4]: " P_CHOISE
+          clear
+
+          case "$P_CHOISE" in
+            1)
+              echo "The number selected in the Posgresql setup task is $P_CHOISE."
+              N_PORT=$(grep -E '^[[:space:]]*port[[:space:]]*=' "$LOC_CONF" | sed -E 's/.*=[[:space:]]*([0-9]+).*/\1/')
+              echo "The currently set port is $N_PORT"
+              echo "Please tell me the port number to change"
+              read -p "Change port: " C_PORT
+
+              sed -i "s/^port[[:space:]]*=[[:space:]]*$N_PORT/port = $C_PORT/" "$LOC_CONF"
+              continue
+              ;;
+            2)
+              echo "The number selected in the Posgresql setup task is $P_CHOISE."
+              MC=$(grep -E '^[[:space:]]*max_connections[[:space:]]*=' "$LOC_CONF" | sed -E 's/.*=[[:space:]]*([0-9]+).*/\1/')
+              echo "The currently set max_connections is $MC"
+              echo "Please tell me the max_connections to change"
+              read -p "Change max_connections: " C_MC
+
+              sed -i -E "s|^[[:space:]]*max_connections[[:space:]]*=[[:space:]]*[0-9]+|max_connections = $C_MC|" "$LOC_CONF"
+              continue
+              ;;
+            3)
+              echo "The number selected in the Posgresql setup task is $P_CHOISE."
+              continue
+              ;;
+            4)
+              echo "The number selected in the Posgresql setup task is $P_CHOISE."
+              echo "We will complete the Posgresql setup."
+              echo "$(now) / Complete the Posgresql setup task" >> sc_postgresql.log
+              exit
+              ;;
+            *)
+              echo "No number was selected in the Posgresql configuration task. Please select again."
+              exit
+              ;;
+          esac
+        done
+
+        continue
         ;;
       5)
         echo "You selected number $CHOISE."
         echo "Not Currently Supported"
-        break
+        continue
         ;;
       6)
         echo "You selected number $CHOISE."
