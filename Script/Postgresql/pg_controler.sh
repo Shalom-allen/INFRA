@@ -41,9 +41,11 @@ while true; do
     echo "1) Package Update => Press Enter when you are done"
     echo "2) Package installation (including DBMS installation) => Press Enter when you are done"
     echo "3) Check Postgresql status"
-    echo "4) Change the PostgreSQL configuration file (this will shut down the running DBMS)."
-    echo "5) Set up PostgreSQL replication (requires at least two DB servers => not currently supported)."
-    echo "6) End of work"
+    echo "4) Resetting Postgresql (first run after installing the library)"
+    echo "5) Change the PostgreSQL configuration file (this will shut down the running DBMS)."
+    echo "6) Set up PostgreSQL replication (requires at least two DB servers => not currently supported)."
+    echo "7) Postgresql Management"
+    echo "8) End of work"
     echo "--------------------------------------------------------------------------------------"
     read -p "Select [1-6]: " CHOICE
     clear
@@ -75,6 +77,61 @@ while true; do
         sleep 3
         ;;
       4)
+        # Postgresql 재설정
+        echo "You selected number $CHOICE."
+        echo "Postgresql is shutting down"
+        systemctl status postgresql
+        systemctl stop postgresql
+        systemctl status postgresql
+        sleep 3
+        clear
+
+        echo "Please enter the data path for Postgresql."
+        read D_LOC
+
+        if [[ ! -f "$D_LOC" ]]; then
+          echo "The path does not exist. A path will be created automatically."
+          mkdir -p $D_LOC
+          chown -R postgres:postgres $D_LOC
+          chmod 700 $D_LOC
+        fi
+
+        echo "Please enter the wal path for Postgresql."
+        read W_LOC
+
+        if [[ ! -f "$W_LOC" ]]; then
+          echo "The path does not exist. A path will be created automatically."
+          mkdir -p $W_LOC
+          chown -R postgres:postgres $W_LOC
+          chmod 700 $W_LOC
+        fi
+
+        echo "Please enter the backup path for Postgresql."
+        read B_LOC
+
+        if [[ ! -f "$B_LOC" ]]; then
+          echo "The path does not exist. A path will be created automatically."
+          mkdir -p $B_LOC
+          chown -R postgres:postgres $B_LOC
+          chmod 700 $B_LOC
+        fi
+
+        chown -R postgres:postgres $D_LOC $W_LOC $B_LOC
+        chmod 700 $D_LOC $W_LOC $B_LOC
+
+        rm -rf /etc/postgresql
+        rm -rf /var/lib/postgresql
+        sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D $D_LOC --waldir=$W_LOC --encoding=UTF8
+        sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D /hbs_pg/data -l logfile start
+
+        systemctl status postgresql
+        sudo -u postgres psql -U postgres -c "show data_directory;"
+        sudo -u postgres psql -U postgres -c "show hba_file;"
+        sudo -u postgres psql -U postgres -c "show config_file;"
+
+        sleep 3
+        ;;
+      5)
         # Postgresql 설정파일 변경
         echo "You selected number $CHOICE."
         echo "Please tell me the location of the postgresql configuration file."
@@ -164,12 +221,18 @@ while true; do
 
         echo "Postgresql configuration file setup complete" >> $L_NAME
         ;;
-      5)
+      6)
+        # Postgresql Replication
         echo "You selected number $CHOICE."
         echo "Not Currently Supported"
         sleep 3
         ;;
-      6)
+      7)
+        # Postgresql 관리
+        sleep 3
+        ;;
+      8)
+        # 작업 종료
         echo "You selected number $CHOICE."
         echo "Bye, $(whoami)"
         echo "$(now) / Termination by choice" >> $L_NAME
