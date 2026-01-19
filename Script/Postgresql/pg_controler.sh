@@ -81,9 +81,7 @@ while true; do
         # Postgresql 재설정
         echo "You selected number $CHOICE."
         echo "Postgresql is shutting down"
-        systemctl status postgresql
         systemctl stop postgresql
-        systemctl status postgresql
         sleep 3
         clear
 
@@ -107,23 +105,13 @@ while true; do
           chmod 700 $W_LOC
         fi
 
-        echo "Please enter the backup path for Postgresql."
-        read B_LOC
+        chown -R postgres:postgres $D_LOC $W_LOC
+        chmod 700 $D_LOC $W_LOC
 
-        if [[ ! -f "$B_LOC" ]]; then
-          echo "The path does not exist. A path will be created automatically."
-          mkdir -p $B_LOC
-          chown -R postgres:postgres $B_LOC
-          chmod 700 $B_LOC
-        fi
-
-        chown -R postgres:postgres $D_LOC $W_LOC $B_LOC
-        chmod 700 $D_LOC $W_LOC $B_LOC
-
-        rm -rf /etc/postgresql
-        rm -rf /var/log/postgresql
         sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D $D_LOC --waldir=$W_LOC --encoding=UTF8
-        systemctl start postgresql
+        sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D $D_LOC -l $D_LOC/install_$L_DATE.log start
+        systemctl daemon-reload
+        systemctl restart postgresql
 
         systemctl status postgresql
         sudo -u postgres psql -U postgres -c "show data_directory;"
@@ -240,10 +228,11 @@ while true; do
           echo "Please select the task you want to perform in Postgresql."
           echo
           echo "1) Shutdown Posgresql"
-          echo "2) Start POstgresql"
-          echo "3) End of Work"
+          echo "2) Start Postgresql"
+          echo "3) Restart Postgresql"
+          echo "4) End of Work"
           echo "--------------------------------------------------------------------------------------"
-          read -p "Select [1-3]: " W_CHOICE
+          read -p "Select [1-4]: " W_CHOICE
           clear
           
           case "$W_CHOICE" in
@@ -266,6 +255,15 @@ while true; do
             sleep 3
             ;;
           3)
+            # Posgresql 재시작
+            echo "You selected number $W_CHOICE."
+            echo "Start Posgresql"
+            systemctl retart postgresql
+            systemctl status postgresql
+            echo "$(whoami) / $(now) : Restart Posgresql" >> $L_NAME
+            sleep 3
+            ;;
+          4)
             # 작업 종료
             echo "You selected number $W_CHOICE."
             echo "End of Work"
