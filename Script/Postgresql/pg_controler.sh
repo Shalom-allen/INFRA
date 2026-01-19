@@ -38,8 +38,8 @@ while true; do
     echo "Welcome to the PostgreSQL installer."
     echo "Please select the task you want to perform."
     echo 
-    echo "1) Package Update => Press Enter when you are done"
-    echo "2) Package installation (including DBMS installation) => Press Enter when you are done"
+    echo "1) Package Update"
+    echo "2) Package installation (including DBMS installation)"
     echo "3) Check Postgresql status"
     echo "4) Resetting Postgresql (first run after installing the library)"
     echo "5) Change the PostgreSQL configuration file (this will shut down the running DBMS)."
@@ -47,7 +47,7 @@ while true; do
     echo "7) Postgresql Management"
     echo "8) End of work"
     echo "--------------------------------------------------------------------------------------"
-    read -p "Select [1-6]: " CHOICE
+    read -p "Select [1-8]: " CHOICE
     clear
 
     case "$CHOICE" in
@@ -55,14 +55,15 @@ while true; do
         # 패키지 업데이트
         echo "You selected number $CHOICE."
         apt-get update -y
-        echo "$(now) / Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
         echo "Download Is Complete"
         ;;
       2)
         # 필요 패키지 설치 및 Postgresql 설치
         echo "You selected number $CHOICE."
+        timedatectl set-timezone 'Asia/Seoul'
         apt-get install -y vim net-tools openssh-server dos2unix postgresql-16 postgresql-contrib
-        echo "$(now) / Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
         echo "Download Is Complete"
         ;;
       3)
@@ -70,8 +71,8 @@ while true; do
         echo "You selected number $CHOICE."
         STATE=$(systemctl show postgresql -p ActiveState --value)
         TS=$(systemctl show postgresql -p ActiveEnterTimestamp --value)
-        echo "Postgresql status : ${STATE} ( ${TS} )" >> $L_NAME
-        echo "$(now) / Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : ostgresql status : ${STATE} ( ${TS} )" >> $L_NAME
+        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
         echo "Postgresql status : ${STATE} ( ${TS} )"
         psql --version
         sleep 3
@@ -121,15 +122,18 @@ while true; do
 
         rm -rf /etc/postgresql
         rm -rf /var/lib/postgresql
+        rm -rf /var/log/postgresql
         sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D $D_LOC --waldir=$W_LOC --encoding=UTF8
-        sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D /hbs_pg/data -l logfile start
+        systemctl start postgresql
 
         systemctl status postgresql
         sudo -u postgres psql -U postgres -c "show data_directory;"
         sudo -u postgres psql -U postgres -c "show hba_file;"
         sudo -u postgres psql -U postgres -c "show config_file;"
 
-        sleep 3
+        echo "$(whoami) / $(now) : PostgreSQL reset operation completed" >> $L_NAME
+
+        sleep 5
         ;;
       5)
         # Postgresql 설정파일 변경
@@ -148,8 +152,8 @@ while true; do
         STATE=$(systemctl show postgresql -p ActiveState --value)
         TS=$(systemctl show postgresql -p ActiveEnterTimestamp --value)
         echo "Postgresql status : ${STATE} ( ${TS} )"
-        echo "$(now) / Task $CHOICE completed" >> $L_NAME
-        echo "Postgresql status : ${STATE} ( ${TS} )" >> $L_NAME
+        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : Postgresql status : ${STATE} ( ${TS} )" >> $L_NAME
 
         while true; do
           clear
@@ -167,14 +171,14 @@ while true; do
           case "$P_CHOICE" in
             1)
               echo "The number selected in the Posgresql setup task is $P_CHOICE."
-              N_PORT=$(grep -E '^[[:space:]]*port[[:space:]]*=' "$LOC_CONF" | sed -E 's/.*=[[:space:]]*([0-9]+).*/\1/')
+              N_PORT=$(grep -E '^[[:space:]]*#?[[:space:]]*port[[:space:]]*=' $LOC_CONF | sed -E 's/.*=[[:space:]]*([0-9]+).*/\1/')
               echo "The currently set port is $N_PORT"
               echo "Please tell me the port number to change"
               read -p "Change port: " C_PORT
 
-              sed -i "s/^port[[:space:]]*=[[:space:]]*$N_PORT/port = $C_PORT/" "$LOC_CONF"
+              sed -i -E "s/^[[:space:]]*#?[[:space:]]*port[[:space:]]*=[[:space:]]*[0-9]+/port = $C_PORT/" $LOC_CONF
 
-              echo "Port change from $N_PORT -> $C_PORT has been completed." >> $L_NAME
+              echo "$(whoami) / $(now) : Port change from $N_PORT -> $C_PORT has been completed." >> $L_NAME
               sleep 3
               ;;
             2)
@@ -186,7 +190,7 @@ while true; do
 
               sed -i -E "s|^[[:space:]]*max_connections[[:space:]]*=[[:space:]]*[0-9]+|max_connections = $C_MC|" "$LOC_CONF"
 
-              echo "Max Connections change from $MC -> $C_MC has been completed." >> $L_NAME
+              echo "$(whoami) / $(now) : Max Connections change from $MC -> $C_MC has been completed." >> $L_NAME
               sleep 3
               ;;
             3)
@@ -199,13 +203,13 @@ while true; do
 
               sed -i -E "s|^[[:space:]]*shared_buffers[[:space:]]*=[[:space:]]*[0-9]+|shared_buffers = $C_BUF|" "$LOC_CONF"
 
-              echo "Shared Buffers change from $N_BUF -> $C_BUF has been completed." >> $L_NAME
+              echo "$(whoami) / $(now) : Shared Buffers change from $N_BUF -> $C_BUF has been completed." >> $L_NAME
               sleep 3
               ;;
             4)
               echo "The number selected in the Posgresql setup task is $P_CHOICE."
               echo "We will complete the Posgresql setup."
-              echo "$(now) / Complete the Posgresql setup task" >> $L_NAME
+              echo "$(whoami) / $(now) : Complete the Posgresql setup task" >> $L_NAME
               sleep 3
               break
               ;;
@@ -219,7 +223,7 @@ while true; do
         systemctl start postgresql
         echo "Postgresql status : ${STATE} ( ${TS} )"
 
-        echo "Postgresql configuration file setup complete" >> $L_NAME
+        echo "$(whoami) / $(now) : Postgresql configuration file setup complete" >> $L_NAME
         ;;
       6)
         # Postgresql Replication
@@ -229,13 +233,58 @@ while true; do
         ;;
       7)
         # Postgresql 관리
+        while true; do
+          clear
+          echo "--------------------------------------------------------------------------------------"
+          echo "Please select the task you want to perform in Postgresql."
+          echo
+          echo "1) Shutdown Posgresql"
+          echo "2) Start POstgresql"
+          echo "3) End of Work"
+          echo "--------------------------------------------------------------------------------------"
+          read -p "Select [1-3]: " W_CHOICE
+          clear
+
+          1)
+            # Posgresql 종료
+            echo "You selected number $W_CHOICE."
+            echo "Shutdown Posgresql"
+            systemctl stop postgresql
+            systemctl status postgresql
+            echo "$(whoami) / $(now) : Shutdown Posgresql" >> $L_NAME
+            sleep 3
+            ;;
+          2)
+            # Posgresql 시작
+            echo "You selected number $W_CHOICE."
+            echo "Start Posgresql"
+            systemctl start postgresql
+            systemctl status postgresql
+            echo "$(whoami) / $(now) : Start Posgresql" >> $L_NAME
+            sleep 3
+            ;;
+          3)
+            # 작업 종료
+            echo "You selected number $W_CHOICE."
+            echo "End of Work"
+            echo "$(whoami) / $(now) : PostgreSQL management tasks completed" >> $L_NAME
+            sleep 3
+            break
+            ;;;
+          *)
+            echo "No number was selected. Please select again."
+            sleep 3
+            ;;
+          esac
+        done
+
         sleep 3
         ;;
       8)
         # 작업 종료
         echo "You selected number $CHOICE."
         echo "Bye, $(whoami)"
-        echo "$(now) / Termination by choice" >> $L_NAME
+        echo "$(whoami) / $(now) : Termination by choice" >> $L_NAME
         sleep 3
         exit
         ;;
@@ -245,3 +294,6 @@ while true; do
         ;;
     esac
 done
+
+# history 삭제
+history -c
