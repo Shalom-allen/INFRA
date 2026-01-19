@@ -121,7 +121,6 @@ while true; do
         chmod 700 $D_LOC $W_LOC $B_LOC
 
         rm -rf /etc/postgresql
-        rm -rf /var/lib/postgresql
         rm -rf /var/log/postgresql
         sudo -u postgres /usr/lib/postgresql/16/bin/initdb -D $D_LOC --waldir=$W_LOC --encoding=UTF8
         systemctl start postgresql
@@ -233,6 +232,8 @@ while true; do
         ;;
       7)
         # Postgresql 관리
+        echo "You selected number $CHOICE."
+
         while true; do
           clear
           echo "--------------------------------------------------------------------------------------"
@@ -244,7 +245,8 @@ while true; do
           echo "--------------------------------------------------------------------------------------"
           read -p "Select [1-3]: " W_CHOICE
           clear
-
+          
+          case "$W_CHOICE" in
           1)
             # Posgresql 종료
             echo "You selected number $W_CHOICE."
@@ -270,7 +272,7 @@ while true; do
             echo "$(whoami) / $(now) : PostgreSQL management tasks completed" >> $L_NAME
             sleep 3
             break
-            ;;;
+            ;;
           *)
             echo "No number was selected. Please select again."
             sleep 3
