@@ -14,6 +14,14 @@
 # dos2unix pg_controler.sh
 # 
 # 날짜 변환 : timedatectl set-timezone 'Asia/Seoul'
+#
+# 로그위치 변경 -> Postgresql.conf설정파일변경
+# vi /etc/postgresql/16/main/postgresql.conf
+# logging_collector = on
+# log_directory = '/hbs_pg/log'
+# log_filename = 'postgresql_%Y%m%d.log'
+# log_rotation_age = 1d
+# log_rotation_size = 0
 # --------------------------------------------------------------
 
 # 시간함수 & Log 파일 설정 --첫 실행 시 Log 디렉토리 설정
@@ -71,7 +79,7 @@ while true; do
         echo "You selected number $CHOICE."
         STATE=$(systemctl show postgresql -p ActiveState --value)
         TS=$(systemctl show postgresql -p ActiveEnterTimestamp --value)
-        echo "$(whoami) / $(now) : ostgresql status : ${STATE} ( ${TS} )" >> $L_NAME
+        echo "$(whoami) / $(now) : Postgresql status : ${STATE} ( ${TS} )" >> $L_NAME
         echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
         echo "Postgresql status : ${STATE} ( ${TS} )"
         psql --version
