@@ -57,7 +57,7 @@ while true; do
         # 패키지 업데이트 & Docker 설치
         echo "You selected number $CHOICE."
         apt-get update -y
-        apt-get install ca-certificates curl gnupg
+        apt-get install ca-certificates curl gnupg -y
 
         install -m 0755 -d /etc/apt/keyrings
 
@@ -89,42 +89,43 @@ while true; do
         echo "You selected number $CHOICE."
 
         while true; do
-            clear
-            echo "--------------------------------------------------------------------------------------"
-            echo "Please select the container to install in Docker."
-            echo 
-            echo "1) Installing a Monitoring (Grafana & Prometheus) Container"
-            echo "2) End of work"
-            echo "--------------------------------------------------------------------------------------"
-            read -p "Select [1-2]: " P_CHOICE
-            clear
+          clear
+          echo "--------------------------------------------------------------------------------------"
+          echo "Please select the container to install in Docker."
+          echo 
+          echo "1) Installing a Monitoring (Grafana & Prometheus) Container"
+          echo "2) End of work"
+          echo "--------------------------------------------------------------------------------------"
+          read -p "Select [1-2]: " P_CHOICE
+          clear
 
-            case "$P_CHOICE" in
-                1)
-                    echo "The number selected in the Docker monitoring tool installation task is $P_CHOICE."
-                    echo "Starting the installation of the Docker monitoring tool."
-                    echo "$(whoami) / $(now) : Starting the installation of the Docker monitoring tool." >> $L_NAME
+          case "$P_CHOICE" in
+            1)
+                echo "The number selected in the Docker monitoring tool installation task is $P_CHOICE."
+                echo "Starting the installation of the Docker monitoring tool."
+                echo "$(whoami) / $(now) : Starting the installation of the Docker monitoring tool." >> $L_NAME
 
-                    source $H_LOC/Monitoring/moni_main.sh
+                source $H_LOC/Monitoring/moni_main.sh
 
-                    echo "Docker monitoring tool installation is complete."
-                    echo "$(whoami) / $(now) : Docker monitoring tool installation is complete." >> $L_NAME
+                echo "Docker monitoring tool installation is complete."
+                echo "$(whoami) / $(now) : Docker monitoring tool installation is complete." >> $L_NAME
 
-                    sleep 3
-                    ;;
-                2)
-                    echo "The number selected in the Docker monitoring tool installation task is $P_CHOICE."
-                    echo "All container installation tasks are complete."
-                    echo "$(whoami) / $(now) : All container installation tasks are complete." >> $L_NAME
-                    sleep 3
-                    break
-                    ;;
-                *)
-                    echo "No number was selected during the Docker container installation process."
-                    echo "Please select it again."
-                    sleep 3
-                    ;;
-            esac
+                sleep 3
+                ;;
+            2)
+                echo "The number selected in the Docker monitoring tool installation task is $P_CHOICE."
+                echo "All container installation tasks are complete."
+                echo "$(whoami) / $(now) : All container installation tasks are complete." >> $L_NAME
+       
+                sleep 3
+                break
+                ;;
+            *)
+                echo "No number was selected during the Docker container installation process."
+                echo "Please select it again."
+                sleep 3
+                ;;
+          esac
         done
         
         echo "Docker status : ${STATE} ( ${TS} )"
