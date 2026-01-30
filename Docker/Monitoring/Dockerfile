@@ -1,5 +1,5 @@
 # Install Ubuntu 22.04
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Install Package
 RUN apt-get update -y && apt-get install vim net-tools systemd nginx -y
