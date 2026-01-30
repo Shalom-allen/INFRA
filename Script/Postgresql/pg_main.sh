@@ -33,7 +33,7 @@ L_USER=$(whoami)
 L_NAME="${L_DIR}/${L_DATE}_${L_USER}.log"
 
 # 스크립트 시작로그
-echo "Start package installation" >> $L_NAME
+echo "Start Postgresql Script" >> $L_NAME
 echo "$(whoami) / $(now)" >> $L_NAME
 clear
 
