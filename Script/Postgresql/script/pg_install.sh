@@ -57,7 +57,7 @@ fi
 clear
 
 # Postgresql 설치 라이브러리 설정
-apt install -y build-essential libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt1-dev libssl-dev libicu-dev liblz4-dev libzstd-dev wget libicu-dev pkg-config
+apt install -y build-essential libreadline-dev zlib1g-dev flex bison libxml2-dev libxslt1-dev libssl-dev libicu-dev liblz4-dev libzstd-dev wget libicu-dev pkg-config pgtop
 wget https://ftp.postgresql.org/pub/source/v16.11/postgresql-16.11.tar.gz -P $I_LOC
 tar -xvf $I_LOC/postgresql-16.11.tar.gz -C $I_LOC
 
