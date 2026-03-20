@@ -1,0 +1,13 @@
+Start Postgresql Script
+root / 2026-03-04 17:58:49
+root / 2026-03-04 17:58:51 : Start PostgreSQL Management
+failed echo root / 2026-03-04 17:58:54 : Start Posgresql
+root / 2026-03-04 17:58:59 : Restart Posgresql
+failed echo root / 2026-03-04 17:59:04 : Start Posgresql
+failed echo root / 2026-03-04 17:59:10 : Start Posgresql
+active echo root / 2026-03-04 18:00:14 : Start Posgresql
+root / 2026-03-04 18:00:20 : PostgreSQL management tasks completed
+root / 2026-03-04 18:00:23 : PostgreSQL management completed
+root / 2026-03-04 18:00:27 : Postgresql status : active ( Wed 2026-03-04 18:00:14 KST )
+root / 2026-03-04 18:00:27 : Task 3 completed
+root / 2026-03-04 18:00:32 : Termination by choice
