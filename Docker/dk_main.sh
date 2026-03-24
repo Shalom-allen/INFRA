@@ -52,10 +52,10 @@ while true; do
     read -p "Select [1-4]: " CHOICE
     clear
 
-    case "$CHOICE" in
+    case "${CHOICE}" in
       1) 
         # 패키지 업데이트 & docker 설치
-        echo "You selected number $CHOICE."
+        echo "You selected number ${CHOICE}."
         apt-get update -y
         apt-get install ca-certificates curl gnupg -y
 
@@ -71,22 +71,22 @@ while true; do
 
         apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
-        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : Task ${CHOICE} completed" >> $L_NAME
         echo "Update and Download Is Complete"
         ;;
       2)
         # docker 상태확인
-        echo "You selected number $CHOICE."
+        echo "You selected number ${CHOICE}."
         STATE=$(systemctl show docker -p ActiveState --value)
         TS=$(systemctl show docker -p ActiveEnterTimestamp --value)
         echo "$(whoami) / $(now) : docker status : ${STATE} ( ${TS} )" >> $L_NAME
-        echo "$(whoami) / $(now) : Task $CHOICE completed" >> $L_NAME
+        echo "$(whoami) / $(now) : Task ${CHOICE} completed" >> $L_NAME
         echo "docker status : ${STATE} ( ${TS} )"
         sleep 3
         ;;
       3)
         # docker 컨테이너 생성
-        echo "You selected number $CHOICE."
+        echo "You selected number ${CHOICE}."
 
         while true; do
           clear
@@ -99,13 +99,66 @@ while true; do
           read -p "Select [1-2]: " P_CHOICE
           clear
 
-          case "$P_CHOICE" in
+          case "${P_CHOICE}" in
             1)
-                echo "The number selected in the docker monitoring tool installation task is $P_CHOICE."
+                echo "The number selected in the docker monitoring tool installation task is ${P_CHOICE}."
                 echo "Starting the installation of the docker monitoring tool."
                 echo "$(whoami) / $(now) : Starting the installation of the docker monitoring tool." >> $L_NAME
 
-                cd $H_LOC/script && docker-compose up -d
+                # Grafana 경로
+                echo "Please write down the Grafana path."
+                read -p "Grafana Path : " GF_PATH
+                echo ""
+
+                if [ ! -d "${GF_PATH}" ]; then    
+                    sudo mkdir -p "${GF_PATH}"
+                else
+                    echo "Directory already exists: ${GF_PATH}"
+                fi
+
+                sudo chown -R 472:472 "${GF_PATH}"
+
+                # Prometheus
+                echo "Please write down the Prometheus path."
+                read -p "Prometheus Path : " PM_PATH
+                echo ""
+
+                if [ ! -d "${PM_PATH}" ]; then    
+                    sudo mkdir -p "${PM_PATH}"
+                    sudo mkdir -p "${PM_PATH}/data"
+                else
+                    echo "Directory already exists: ${PM_PATH}"
+                fi
+
+                cp ${H_LOC}/monitor/prometheus.yml ${PM_PATH}
+
+                sudo chown -R 65534:65534 "${PM_PATH}"
+
+                # DBMS IP
+                echo "Please write down the IP address of the server where the DBMS is installed."
+                read -p "IP : " PG_IP
+                echo ""
+
+                # Grafana에서 DBMS로 접속할 비밀번호 입력
+                echo "Please provide the password for the account that Grafana will use to connect to the DBMS."
+                read -s -p "Password : " PG_PW
+                echo ""
+
+                # env파일 생성
+                cat <<-EOF > "${H_LOC}/monitor/moni_conf.env"
+                PG_USER=mon_grafana
+                PG_PASSWORD=${PG_PW}
+                PG_IP=${PG_IP}
+                PG_PORT=5432
+                PG_DB=postgres
+                SCRIPT_PATH=${H_LOC}
+                GF_PATH=${GF_PATH}
+                PM_PATH=${PM_PATH}
+EOF
+
+                unset PG_PW
+
+                cd ${H_LOC}/monitor && docker compose --env-file ${H_LOC}/monitor/moni_conf.env up -d
 
                 echo "docker monitoring tool installation is complete."
                 echo "$(whoami) / $(now) : docker monitoring tool installation is complete." >> $L_NAME
@@ -128,12 +181,13 @@ while true; do
           esac
         done
         
-        echo "docker status : ${STATE} ( ${TS} )"
+        docker ps
+
         sleep 3
         ;;
       4)
         # 작업 종료
-        echo "You selected number $CHOICE."
+        echo "You selected number ${CHOICE}."
         echo "Bye, $(whoami)"
         echo "$(whoami) / $(now) : Termination by choice" >> $L_NAME
         sleep 2

@@ -22,8 +22,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - /docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - /docker/prometheus/data:/prometheus
+      - ${PM_PATH}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PM_PATH}/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -44,6 +44,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /docker/grafana:/var/lib/grafana
+      - ${GF_PATH}:/var/lib/grafana
     depends_on:
       - prometheus

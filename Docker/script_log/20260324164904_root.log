@@ -1,0 +1,8 @@
+Start docker Script
+root / 2026-03-24 16:49:04
+root / 2026-03-24 16:49:08 : docker status : active ( Wed 2026-02-25 15:47:59 KST )
+root / 2026-03-24 16:49:08 : Task 2 completed
+root / 2026-03-24 16:49:14 : Starting the installation of the docker monitoring tool.
+root / 2026-03-24 16:49:25 : docker monitoring tool installation is complete.
+root / 2026-03-24 16:49:31 : All container installation tasks are complete.
+root / 2026-03-24 16:49:41 : Termination by choice
