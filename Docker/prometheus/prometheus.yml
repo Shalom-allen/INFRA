@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s     # 15초마다 데이터를 수집합니다. (기본값)
+  evaluation_interval: 15s # 규칙(Alert 등)을 평가하는 주기입니다.
+
+scrape_configs:
+  # 1. Prometheus 자기 자신의 상태 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. PostgreSQL 모니터링 (Postgres Exporter 연결)
+  - job_name: 'postgres-exporter'
+    static_configs:
+      # 도커 컴포즈 서비스명과 포트를 적습니다.
+      - targets: ['postgres-exporter:9187']

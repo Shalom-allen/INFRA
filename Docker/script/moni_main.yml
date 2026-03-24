@@ -1,0 +1,49 @@
+#!/bin/bash
+# --------------------------------------------------------------
+#                   Docker Grafana & Prometheus
+#                                       Ver. 1.0
+#
+#                                       Date 2026-03-23
+#                                       Create by Yoo Min Sang
+#                                       OS Version : Ubuntu 24.04
+#                                       Docker Version : 29.2.0
+# 특이사항
+# 리눅스 기반에서 수행 시 아래 명령어 수행(Unix 파일 변환)
+# apt install -y dos2unix
+# chmod +x dk_main.sh
+# dos2unix dk_main.sh
+# 
+# --------------------------------------------------------------
+services:
+  prometheus:
+    image: prom/prometheus:v3.10.0
+    container_name: yms_prom
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - /docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /docker/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: yms_pg_exporter
+    restart: always
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${PG_USER}:${PG_PASSWORD}@${PG_IP}:${PG_PORT}/${PG_DB}?sslmode=disable"
+    ports:
+      - "9187:9187"
+
+  grafana:
+    image: grafana/grafana:12.4.1
+    container_name: yms_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - /docker/grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
